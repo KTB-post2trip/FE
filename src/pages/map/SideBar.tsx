@@ -1,11 +1,13 @@
-import { useRef, useEffect } from "react";
-import styled from "styled-components";
+import { useRef, useEffect, useState } from "react";
+import { SidebarWrapper, Edge } from "./KakaoMap.style";
 
 const MIN_WIDTH = 200;
+const MAX_WIDTH = 800;
 const INITIAL_WIDTH = 400;
 
 const Sidebar = () => {
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(INITIAL_WIDTH);
 
   useEffect(() => {
     if (sidebarRef.current) {
@@ -22,7 +24,11 @@ const Sidebar = () => {
 
     const resize = (moveEvent: MouseEvent) => {
       const deltaX = moveEvent.clientX - startX;
-      const newWidth = Math.max(MIN_WIDTH, startWidth + deltaX);
+      const newWidth = Math.max(
+        MIN_WIDTH,
+        Math.min(MAX_WIDTH, startWidth + deltaX)
+      ); // 최대값 제한
+      setWidth(newWidth);
       target.style.width = `${newWidth}px`;
     };
 
@@ -39,52 +45,11 @@ const Sidebar = () => {
   };
 
   return (
-    <SidebarWrapper ref={sidebarRef}>
+    <SidebarWrapper ref={sidebarRef} style={{ width: `${width}px` }}>
       <Edge onMouseDown={dragHandler} />
       <div className="p-4">Sidebar Content</div>
     </SidebarWrapper>
   );
 };
 
-const MapContainer = () => {
-  return (
-    <Main>
-      <MapArea>Map Here</MapArea>
-      <Sidebar />
-    </Main>
-  );
-};
-
-export default MapContainer;
-
-const Main = styled.div`
-  position: relative;
-  width: 400px;
-  height: 100vh;
-  z-index: 100;
-`;
-
-const MapArea = styled.div`
-  width: 100%;
-  height: 100%;
-`;
-
-const SidebarWrapper = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background-color: pink;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-`;
-
-const Edge = styled.div`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 100%;
-  width: 5px;
-  cursor: col-resize;
-  background-color: gray;
-`;
+export default Sidebar;
