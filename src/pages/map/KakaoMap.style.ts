@@ -32,3 +32,10 @@ export const Edge = styled.div`
   cursor: col-resize;
   background-color: white;
 `;
+
+export const Content = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+`;

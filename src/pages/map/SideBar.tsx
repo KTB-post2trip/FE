@@ -1,6 +1,9 @@
 import { useRef, useEffect, useState } from "react";
-import { SidebarWrapper, Edge } from "./KakaoMap.style";
+import { SidebarWrapper, Edge, Content } from "./KakaoMap.style";
 import EdgeBar from "../../components/map/EdgeBar";
+import SelectPlace from "../../components/map/SelectPlace";
+import SelectDays from "../../components/map/SelectDays";
+import styled from "styled-components";
 
 const MIN_WIDTH = 200; // 최소 너비
 const MAX_WIDTH = 800; // 최대 너비
@@ -60,9 +63,20 @@ const Sidebar = () => {
       <Edge onMouseDown={dragHandler}>
         <EdgeBar />
       </Edge>
-      <p>Sidebar Content</p>
+      <Content>
+        <SelectPlace />
+        <SectionDivider />
+        <SelectDays />
+      </Content>
     </SidebarWrapper>
   );
 };
 
 export default Sidebar;
+
+const SectionDivider = styled.div`
+  width: 1px;
+  height: 100%;
+  border-left: 2px dashed gray;
+  margin: 0 10px;
+`;

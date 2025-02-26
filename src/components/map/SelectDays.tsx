@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
-export default function SelectPlace() {
+export default function SelectDays() {
   return (
     <Main>
-      <Title>장소</Title>
+      <Title>1일차</Title>
     </Main>
   );
 }
@@ -11,7 +11,7 @@ export default function SelectPlace() {
 const Main = styled.div`
   width: 100%;
   height: 100%;
-  background-color: pink;
+  background-color: blue;
 `;
 
 const Title = styled.p`

@@ -21,5 +21,5 @@ const LineIcon = styled(FaGripLinesVertical)`
   width: 10px;
   height: 30px;
   color: gray;
-  margin-right: 8px;
+  margin: 0 8px;
 `;
