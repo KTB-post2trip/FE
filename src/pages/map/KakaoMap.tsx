@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Main, MapContainer } from "./KakaoMap.style";
+import Sidebar from "./SideBar";
 
-const KakaoMap = () => {
+function KakaoMap() {
   const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,9 +24,10 @@ const KakaoMap = () => {
 
   return (
     <Main>
+      <Sidebar />
       <MapContainer ref={mapRef} />
     </Main>
   );
-};
+}
 
 export default KakaoMap;

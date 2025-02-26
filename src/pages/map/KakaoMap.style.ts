@@ -4,7 +4,6 @@ export const Main = styled.div`
   width: 100vw;
   height: 100vh;
   min-height: 300px;
-  background-color: white;
 `;
 
 export const MapContainer = styled.div`
