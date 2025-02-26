@@ -17,6 +17,7 @@ export const SidebarWrapper = styled.div`
   width: 400px;
   min-width: 200px;
   max-width: 400px;
+  color: black;
   background-color: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
   z-index: 10;
@@ -28,7 +29,6 @@ export const Edge = styled.div`
   top: 0;
   bottom: 0;
   right: 0;
-  width: 10px;
   cursor: col-resize;
   background-color: white;
 `;

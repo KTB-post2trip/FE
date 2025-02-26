@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { SidebarWrapper, Edge } from "./KakaoMap.style";
+import EdgeBar from "../../components/map/EdgeBar";
 
 const MIN_WIDTH = 200; // 최소 너비
 const MAX_WIDTH = 800; // 최대 너비
@@ -56,7 +57,9 @@ const Sidebar = () => {
       ref={sidebarRef}
       style={{ width: `${width}px`, maxWidth: `${MAX_WIDTH}px` }}
     >
-      <Edge onMouseDown={dragHandler} />
+      <Edge onMouseDown={dragHandler}>
+        <EdgeBar />
+      </Edge>
       <p>Sidebar Content</p>
     </SidebarWrapper>
   );
