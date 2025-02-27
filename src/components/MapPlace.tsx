@@ -38,12 +38,46 @@ export default function MapPlace() {
     };
   }, []);
 
+  const getImageUrl = (place: Place): string => {
+      // imageUrl이 없거나 공백이면 기본 이미지 선택
+      if (!place.imageUrl || place.imageUrl.trim() === "") {
+        if (place.category === "카페" || place.category === "디저트") {
+          return "N_cafe.png";
+        } else if (place.category === "음식점") {
+          return "N_food.png";
+        } else if (place.category === "관광지") {
+          return "N_place.png";
+        } else if (place.category === "쇼핑"){
+          return "N_shopping.png";
+        } else{
+          return "N_else.png";
+        }
+        return "default.png"; // 기타 기본값(원하는 경우)
+      }
+      return place.imageUrl;
+    };
+
   return (
     <ContentWrapper ref={containerRef} cols={cols}>
       {places.map((place: Place) => {
         return (
           <PlaceWrapper key={place.id}>
-            <PlaceImage src={place.imageUrl} alt="장소" />
+            <PlaceImage 
+                    src={getImageUrl(place)} 
+                    alt='장소'
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (place.category === "카페/디저트") {
+                        target.src = "N_cafe.png";
+                      } else if (place.category === "음식점") {
+                        target.src = "N_food.png";
+                      } else if (place.category === "관광지") {
+                        target.src = "N_place.png";
+                      } else if (place.category === "쇼핑"){
+                        target.src = "N_shopping.png";
+                      }else{target.src = "N_else.png";}
+                    }}
+                  />
             <Title>{place.name}</Title>
             <Description>{place.description}</Description>
           </PlaceWrapper>
