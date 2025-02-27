@@ -1,18 +1,20 @@
 import { useRef, useEffect, useState } from "react";
-import { SidebarWrapper, Edge, Content } from "./KakaoMap.style";
+import { SidebarWrapper, Edge, Content, Days } from "./KakaoMap.style";
 import EdgeBar from "../../components/map/EdgeBar";
 import SelectPlace from "../../components/map/SelectPlace";
 import SelectDays from "../../components/map/SelectDays";
+import CountDays from "../../components/map/CountDays";
 import styled from "styled-components";
 
-const MIN_WIDTH = 200; // 최소 너비
-const MAX_WIDTH = 800; // 최대 너비
-const INITIAL_WIDTH = 600; // 초기 너비
+const MIN_WIDTH = 200;
+const MAX_WIDTH = 800;
+const INITIAL_WIDTH = 600;
 
 const Sidebar = () => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(INITIAL_WIDTH);
   const resizingRef = useRef(false);
+  const [showSelectDays, setShowSelectDays] = useState(false);
 
   useEffect(() => {
     if (sidebarRef.current) {
@@ -66,7 +68,13 @@ const Sidebar = () => {
       <Content>
         <SelectPlace />
         <SectionDivider />
-        <SelectDays />
+        <Days>
+          {!showSelectDays ? (
+            <CountDays onCreate={() => setShowSelectDays(true)} />
+          ) : (
+            <SelectDays />
+          )}
+        </Days>
       </Content>
     </SidebarWrapper>
   );

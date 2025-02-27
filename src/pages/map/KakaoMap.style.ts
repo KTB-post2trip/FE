@@ -39,3 +39,8 @@ export const Content = styled.div`
   align-items: center;
   height: 100%;
 `;
+
+export const Days = styled.div`
+  width: 100%;
+  height: 100%;
+`;
