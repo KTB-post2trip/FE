@@ -70,7 +70,7 @@ const Home = () => {
     };
   }, [showVideo]);
 
-//api 호출출
+//api 호출
   const fetchPlaceData = async () => {
     try {
       const response = await axios.get('/api/place', {
@@ -115,11 +115,7 @@ const Home = () => {
             <option value="부산">부산</option>
             <option value="강원">강원</option>
             <option value="경상">경상</option>
-            <option value="경남">경남</option>
             <option value="전남">전남</option>
-            <option value="전북">전북</option>
-            <option value="대구">대구</option>
-            <option value="충청">충청</option>
           </SelectBox>
           (으)로 떠나볼까요?
         </BoxWrapper>
@@ -128,7 +124,13 @@ const Home = () => {
           value={youtubeUrl} 
           onChange={(e) => setYoutubeUrl(e.target.value)} 
         />
-        <StartBtn onClick={() => {setShowVideo(true); fetchPlaceData();}}>일정 만들기</StartBtn>
+        <StartBtn onClick={() => {
+          {
+            if (youtubeUrl.trim() === "") {
+              alert("YouTube URL을 입력하세요.");
+              return;
+            }}
+          setShowVideo(true); fetchPlaceData();}}>일정 만들기</StartBtn>
       </SearchWrapper>
 
       <VideoWrapper Hidden={showVideo}>
@@ -141,9 +143,9 @@ const Home = () => {
             width: "760px",
             height: "360px",
             playerVars: {
-              autoplay: 1, //자동재생 O
-              rel: 0, //관련 동영상 표시하지 않음 (근데 별로 쓸모 없는듯..)
-              modestbranding: 1, // 컨트롤 바에 youtube 로고를 표시하지 않음
+              autoplay: 1,
+              rel: 0,
+              modestbranding: 1,
             },
           }}
         />

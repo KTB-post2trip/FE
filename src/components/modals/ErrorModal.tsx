@@ -6,14 +6,8 @@ interface ErrorModalProps {
 }
 
 const ErrorModal: React.FC<ErrorModalProps> = ({ onClose }) => {
-  const handleClose = (): boolean => {
+  const handleClose = (): void => {
     onClose();
-    return false;
-  };
-
-  // 문자열이 maxLength를 초과하면 잘라서 "..." 추가하는 함수
-  const truncateText = (text: string, maxLength: number): string => {
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
   };
 
   return (
@@ -87,7 +81,6 @@ const Message = styled.div`
 `;
 
 const OKBtn = styled.button`
-  /* display: flex; */
   width: 160px;
   height: 64px;
   justify-content: center;
