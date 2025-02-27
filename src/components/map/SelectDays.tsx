@@ -1,79 +1,81 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from "react";
 import styled from "styled-components";
+import axios from "axios";
 import PlaceList from "./PlaceList";
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
 
-const mockData = [
-  {
-    id: 1,
-    name: "경복궁",
-    description: "풍경이 예쁜 제주도",
-    imageUrl: "https://ui-avatars.com/api/?name=HI",
-    page: 4,
-  },
-  {
-    id: 2,
-    name: "경복궁 경회루",
-    description: "풍경이 예쁜 제주도 대표 산",
-    imageUrl: "https://ui-avatars.com/api/?name=dfs",
-    page: 1,
-  },
-  {
-    id: 2,
-    name: "경복궁 경회루",
-    description: "풍경이 예쁜 제주도 대표 산",
-    imageUrl: "https://ui-avatars.com/api/?name=HI",
-    page: 3,
-  },
-  {
-    id: 5,
-    name: "경복궁 경회루",
-    description: "풍경이 예쁜 제주도 대표 산",
-    imageUrl: "https://ui-avatars.com/api/?name=HI",
-    page: 3,
-  },
-  {
-    id: 3,
-    name: "창덕궁",
-    description: "조선 시대 궁궐",
-    imageUrl: "https://ui-avatars.com/api/?name=CDG",
-    page: 2,
-  },
-];
+interface Place {
+  id: number;
+  name: string;
+  description: string;
+  imageUrl: string | null;
+  days: number;
+}
 
 export default function SelectDays() {
-  const uniquePages = [...new Set(mockData.map((item) => item.page))].sort(
-    (a, b) => a - b
-  );
-  const [currentPage, setCurrentPage] = useState(uniquePages[0]);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [uniqueDays, setUniqueDays] = useState<number[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const response = await axios.get("/api/recommend");
+        const transformedData: Place[] = response.data.map((item: any) => ({
+          id: item.place.id,
+          name: item.place.name,
+          description: item.place.description,
+          imageUrl:
+            item.place.imageUrl ||
+            "https://via.placeholder.com/80?text=No+Image",
+          days: item.days,
+        }));
+
+        setPlaces(transformedData);
+        setUniqueDays(
+          [...new Set(transformedData.map((place) => place.days))].sort(
+            (a, b) => a - b
+          )
+        );
+        setCurrentPage(
+          transformedData.length > 0 ? transformedData[0].days : 1
+        );
+      } catch (error) {
+        console.error("API 요청 실패 ❌", error);
+      }
+    };
+
+    fetchPlaces();
+  }, []);
 
   const handlePrev = () => {
-    const currentIndex = uniquePages.indexOf(currentPage);
-    if (currentIndex > 0) setCurrentPage(uniquePages[currentIndex - 1]);
+    const currentIndex = uniqueDays.indexOf(currentPage);
+    if (currentIndex > 0) setCurrentPage(uniqueDays[currentIndex - 1]);
   };
 
   const handleNext = () => {
-    const currentIndex = uniquePages.indexOf(currentPage);
-    if (currentIndex < uniquePages.length - 1)
-      setCurrentPage(uniquePages[currentIndex + 1]);
+    const currentIndex = uniqueDays.indexOf(currentPage);
+    if (currentIndex < uniqueDays.length - 1)
+      setCurrentPage(uniqueDays[currentIndex + 1]);
   };
 
   return (
     <Main>
       <Header>
-        <Arrow onClick={handlePrev} disabled={currentPage === uniquePages[0]}>
+        <Arrow onClick={handlePrev} disabled={currentPage === uniqueDays[0]}>
           <FaLongArrowAltLeft />
         </Arrow>
         <Title>{currentPage}일차</Title>
         <Arrow
           onClick={handleNext}
-          disabled={currentPage === uniquePages[uniquePages.length - 1]}
+          disabled={currentPage === uniqueDays[uniqueDays.length - 1]}
         >
           <FaLongArrowAltRight />
         </Arrow>
       </Header>
       <SlideContainer>
-        <PlaceList data={mockData} currentPage={currentPage} />
+        <PlaceList data={places} currentPage={currentPage} />
       </SlideContainer>
     </Main>
   );
@@ -102,12 +104,6 @@ const Arrow = styled.button`
   cursor: pointer;
   color: ${(props) => (props.disabled ? "#ccc" : "#000")};
   outline: none;
-  &:focus {
-    outline: none;
-  }
-  &:active {
-    outline: none;
-  }
 `;
 
 const Title = styled.p`

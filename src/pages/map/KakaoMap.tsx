@@ -37,9 +37,7 @@ function KakaoMap() {
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
-        const response = await axios.get<Recommendation[]>(
-          "/api/recommend"
-        );
+        const response = await axios.get<Recommendation[]>("/api/recommend");
         const places = response.data;
 
         console.log("API 응답 데이터:", places);
@@ -53,23 +51,24 @@ function KakaoMap() {
 
             const bounds = new window.kakao.maps.LatLngBounds();
 
-            places.forEach((item) => {
-              const { latitude, longitude, sid } = item.place;
-              const { days } = item;
+            const markers = places
+              .map((item) => {
+                const { latitude, longitude, url, name } = item.place;
+                const { days } = item;
 
-              if (latitude && longitude) {
-                // days 값에 따라 마커 이미지 동적 설정
-                const markerImageSrc = `/public/day${days}-pin.svg`;
-
-                const markerImage = new window.kakao.maps.MarkerImage(
-                  markerImageSrc,
-                  new window.kakao.maps.Size(40, 40),
-                  { offset: new window.kakao.maps.Point(20, 40) }
-                );
+                if (!latitude || !longitude || !url) return null;
 
                 const markerPosition = new window.kakao.maps.LatLng(
                   parseFloat(latitude),
                   parseFloat(longitude)
+                );
+
+                bounds.extend(markerPosition);
+
+                const markerImage = new window.kakao.maps.MarkerImage(
+                  `/public/day${days}-pin.svg`,
+                  new window.kakao.maps.Size(40, 40),
+                  { offset: new window.kakao.maps.Point(20, 40) }
                 );
 
                 const marker = new window.kakao.maps.Marker({
@@ -78,18 +77,39 @@ function KakaoMap() {
                   map,
                 });
 
-                window.kakao.maps.event.addListener(marker, "click", () => {
-                  window.open(
-                    `https://map.kakao.com/link/map/${sid}`,
-                    "_blank"
-                  );
+                // 마커 위에 장소명 표시 (CustomOverlay)
+                const overlayContent = document.createElement("div");
+                overlayContent.innerHTML = `<div style="
+                  background-color: white; 
+                  color:black;
+                  padding: 2px 8px; 
+                  border-radius: 4px;
+                  font-size: 12px; 
+                  font-weight: bold;
+                  text-align: center;
+                  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+                  margin-bottom: 22px;
+                ">${name}</div>`;
+
+                const overlay = new window.kakao.maps.CustomOverlay({
+                  content: overlayContent,
+                  position: markerPosition,
+                  yAnchor: 1.5,
+                  zIndex: 3,
                 });
 
-                bounds.extend(markerPosition);
-              }
-            });
+                overlay.setMap(map);
 
-            if (places.length > 0) {
+                // 마커 클릭 시 URL로 이동
+                window.kakao.maps.event.addListener(marker, "click", () => {
+                  window.open(url, "_blank");
+                });
+
+                return marker;
+              })
+              .filter((marker) => marker !== null);
+
+            if (markers.length > 0) {
               map.setBounds(bounds);
             }
           }
