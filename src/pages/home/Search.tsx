@@ -3,7 +3,7 @@ import styled, {keyframes} from 'styled-components'
 import YouTube from 'react-youtube';
 import axios from 'axios';
 
-import { usePlaceStore } from '../../store/PlaceStore';
+import { usePlaceStore, Place } from '../../store/PlaceStore';
 
 import ErrorModal from '../../components/modals/ErrorModal';
 import SelectModal from '../../components/modals/SelectModal';
@@ -71,9 +71,9 @@ const Home = () => {
   }, [showVideo]);
 
 //api 호출
-  const fetchPlaceData = async () => {
+  const fetchPlaceData = async (): Promise<void> => {
     try {
-      const response = await axios.get('/api/place', {
+      const response = await axios.get<Place[]>('/api/place', {
         params: {
           url: youtubeUrl,
           placeName: selectedPlace,
@@ -286,7 +286,7 @@ const SelectBox = styled.select`
   option{
     color: white;
     text-align: center;
-    width: 100px;
+    width: 80;
     font-family: "Noto Sans";
     font-size: 55px;
     font-style: normal;
