@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Button, Box, CircularProgress } from "@mui/material";
 import styled from "styled-components";
 import { BsAirplaneFill } from "react-icons/bs";
+import axios from "axios";
+import { usePlaceStore } from "../../store/PlaceStore";
+import { useRecommendStore } from "../../store/useRecommendStore";
 
 interface CountDaysProps {
   onCreate: () => void;
@@ -10,29 +14,43 @@ interface CountDaysProps {
 export default function CountDays({ onCreate }: CountDaysProps) {
   const [days, setDays] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { sid } = usePlaceStore();
+  const { setPlaces } = useRecommendStore();
 
   const handleCreateTrip = async () => {
+    if (!sid) {
+      console.error("❌ sid 값이 없습니다.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "https://jsonplaceholder.typicode.com/posts",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ days }),
-        }
+      const response = await axios.get(
+        `/api/recommend/place?sId=${sid}&days=${days}`
       );
 
-      const result = await response.json();
-      console.log("API 응답:", result);
+      const result = response.data;
+      console.log("✅ API 응답:", result);
+
+      if (result.recommend_places) {
+        const formattedPlaces = result.recommend_places.map((item: any) => ({
+          id: item.sort,
+          name: item.place.place_name,
+          description: item.place.description,
+          imageUrl: item.place.imageUrl || "/public/default-image.png",
+          days: item.days,
+        }));
+
+        setPlaces(formattedPlaces);
+      }
 
       setTimeout(() => {
         setIsLoading(false);
         onCreate();
-      }, 100);
+      }, 500);
     } catch (error) {
-      console.error("API 요청 실패 ❌", error);
+      console.error("❌ API 요청 실패", error);
       setIsLoading(false);
     }
   };
