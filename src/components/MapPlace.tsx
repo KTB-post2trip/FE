@@ -61,6 +61,7 @@ const ContentWrapper = styled.div<ContentWrapperProps>`
   /* 컨테이너는 부모의 여유 공간에 맞게 100% 너비, 높이 */
   /* position: relative; */
   width: 100%;
+  max-height: 80%;
   overflow-y: hidden;
   /* 최대 크기는 원하는 값으로 설정 */
   row-gap: 20px;
@@ -104,6 +105,7 @@ const PlaceImage = styled.img`
 `;
 
 const Title = styled.div`
+  width: 110px;
   color: #000;
   text-align: center;
   font-family: "Pretendard Variable";
