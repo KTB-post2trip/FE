@@ -3,6 +3,7 @@ import styled, {keyframes} from 'styled-components'
 import YouTube from 'react-youtube';
 import axios from 'axios';
 
+import { usePlaceStore } from '../../store/PlaceStore';
 
 import ErrorModal from '../../components/modals/ErrorModal';
 import SelectModal from '../../components/modals/SelectModal';
@@ -10,9 +11,11 @@ import SelectModal from '../../components/modals/SelectModal';
 const Home = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [progress, setProgress] = useState<number>(0);
-  const [showErrorModal, setShowErrorModal] = useState<boolean>(true);
+  const [showErrorModal, setShowErrorModal] = useState<boolean>(false);
   const [selectedPlace, setSelectedPlace] = useState<string>('서울');
   const [youtubeUrl, setYoutubeUrl] = useState<string>("");
+
+  const { setPlaces, setSid } = usePlaceStore();
 
   const handleErrorModalClose = (): boolean => {
     setShowErrorModal(false);
@@ -67,19 +70,25 @@ const Home = () => {
     };
   }, [showVideo]);
 
-
-  const fetchData = async () => {
+//api 호출출
+  const fetchPlaceData = async () => {
     try {
       const response = await axios.get('/api/place', {
         params: {
           url: youtubeUrl,
-          placeName: '서울',
+          placeName: selectedPlace,
         }
       });
+
+      setPlaces(response.data);
+      setSid(response.data[0].sid);
+
       console.log(response.data);
+      console.log(response.data[0].sid);
 
       // 응답이 성공적으로 도착하면 진행률을 100%로 설정
       setProgress(100);
+      setShowErrorModal(true);
 
       // 필요하다면 100%가 된 후 잠시 뒤에 페이지 이동
       // setTimeout(() => { navigate('/next-page'); }, 500);
@@ -96,7 +105,10 @@ const Home = () => {
       </LogoWrapper>
       <SearchWrapper isHidden={showVideo}>
         <BoxWrapper>
-          <SelectBox>
+          <SelectBox
+            value={selectedPlace}
+            onChange={(e) => setSelectedPlace(e.target.value)}
+          >
             <option value="서울">서울</option>
             <option value="경기">경기</option>
             <option value="제주">제주</option>
@@ -116,7 +128,7 @@ const Home = () => {
           value={youtubeUrl} 
           onChange={(e) => setYoutubeUrl(e.target.value)} 
         />
-        <StartBtn onClick={() => {setShowVideo(true); fetchData();}}>일정 만들기</StartBtn>
+        <StartBtn onClick={() => {setShowVideo(true); fetchPlaceData();}}>일정 만들기</StartBtn>
       </SearchWrapper>
 
       <VideoWrapper Hidden={showVideo}>
@@ -272,7 +284,7 @@ const SelectBox = styled.select`
   option{
     color: white;
     text-align: center;
-    width: 160px;
+    width: 100px;
     font-family: "Noto Sans";
     font-size: 55px;
     font-style: normal;
