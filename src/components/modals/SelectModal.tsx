@@ -64,8 +64,8 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
                 onClick={() => handleToggleExclude(place.id)}
                 style={{
                   opacity: isExcluded ? 0.5 : 1,
-                  borderColor: isExcluded ? 'red' : '#676767',
-                  scale: isExcluded ? 0.93 : 1,
+                  backgroundColor: isExcluded ? '#a1a5ae' : 'white',
+                  // scale: isExcluded ? 0.93 : 1,
                 }}
               >
                 <PlaceImage src={place.imageUrl} alt='장소'/>
@@ -219,6 +219,11 @@ const Description = styled.div`
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; //2줄까지만만
+  overflow: hidden;
   text-overflow: ellipsis;
 
   margin-top: 6px;

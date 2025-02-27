@@ -38,7 +38,7 @@ function KakaoMap() {
     const fetchPlaces = async () => {
       try {
         const response = await axios.get<Recommendation[]>(
-          "http://13.124.106.170:8080/api/recommend"
+          "/api/recommend"
         );
         const places = response.data;
 
