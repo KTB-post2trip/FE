@@ -7,7 +7,7 @@ import styled from "styled-components";
 
 const MIN_WIDTH = 200; // 최소 너비
 const MAX_WIDTH = 800; // 최대 너비
-const INITIAL_WIDTH = 400; // 초기 너비
+const INITIAL_WIDTH = 600; // 초기 너비
 
 const Sidebar = () => {
   const sidebarRef = useRef<HTMLDivElement>(null);
