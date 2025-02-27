@@ -111,6 +111,9 @@ function KakaoMap() {
 
             if (markers.length > 0) {
               map.setBounds(bounds);
+
+              const currentLevel = map.getLevel();
+              map.setLevel(currentLevel + 1);
             }
           }
         }

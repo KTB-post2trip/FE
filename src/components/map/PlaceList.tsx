@@ -1,20 +1,21 @@
 import styled from "styled-components";
+import { useRecommendStore } from "../../store/useRecommendStore";
 
-interface Place {
-  id: number;
-  name: string;
-  description: string;
-  imageUrl: string | null;
-  days: number;
-}
+// interface Place {
+//   id: number;
+//   name: string;
+//   description: string;
+//   imageUrl: string | null;
+//   days: number;
+// }
 
 interface PlaceListProps {
-  data: Place[];
   currentPage: number;
 }
 
-export default function PlaceList({ data, currentPage }: PlaceListProps) {
-  const filteredPlaces = data.filter((place) => place.days === currentPage);
+export default function PlaceList({ currentPage }: PlaceListProps) {
+  const { places } = useRecommendStore();
+  const filteredPlaces = places.filter((place) => place.days === currentPage);
 
   return (
     <ListContainer>
