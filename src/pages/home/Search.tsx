@@ -120,7 +120,7 @@ const Home = () => {
           (으)로 떠나볼까요?
         </BoxWrapper>
         <SelectUrl
-          placeholder="https://www.youtube.com/watch?v=tPJQtHIRKxo" 
+          placeholder="ex)https://www.youtube.com/" 
           value={youtubeUrl} 
           onChange={(e) => setYoutubeUrl(e.target.value)} 
         />
@@ -135,7 +135,7 @@ const Home = () => {
 
       <VideoWrapper Hidden={showVideo}>
         <Header>
-          <img src='L2T_Logo.png' alt='Logo'/>
+          <img src='Col_Logo.png' alt='Logo'/>
         </Header>
         <YouTube
           videoId={extractVideoId(youtubeUrl)}
@@ -387,11 +387,11 @@ const Header = styled.div`
   
   text-align: left;
 
-  margin-bottom: 40px;
+  margin-bottom: 150px;
 
   img{
-    width: 160px;
-    height: 156px;
+    width: 220px;
+    height: 47px;
     margin-top: 65px;
     margin-left: 65px;
   }
