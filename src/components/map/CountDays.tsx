@@ -98,7 +98,7 @@ const CircleButton = styled(Button)`
     border-radius: 50%;
     min-width: 20px;
     padding: 0;
-    background-color: gray;
+    background-color: #bcbcbc;
   }
 `;
 

@@ -53,10 +53,10 @@ function KakaoMap() {
 
             const markers = places
               .map((item) => {
-                const { latitude, longitude, url } = item.place; // url 사용
+                const { latitude, longitude, url, name } = item.place;
                 const { days } = item;
 
-                if (!latitude || !longitude || !url) return null; // url이 없는 경우 제외
+                if (!latitude || !longitude || !url) return null;
 
                 const markerPosition = new window.kakao.maps.LatLng(
                   parseFloat(latitude),
@@ -77,14 +77,37 @@ function KakaoMap() {
                   map,
                 });
 
-                // 클릭 시 받아온 URL로 이동
+                // 마커 위에 장소명 표시 (CustomOverlay)
+                const overlayContent = document.createElement("div");
+                overlayContent.innerHTML = `<div style="
+                  background-color: white; 
+                  color:black;
+                  padding: 2px 8px; 
+                  border-radius: 4px;
+                  font-size: 12px; 
+                  font-weight: bold;
+                  text-align: center;
+                  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+                  margin-bottom: 22px;
+                ">${name}</div>`;
+
+                const overlay = new window.kakao.maps.CustomOverlay({
+                  content: overlayContent,
+                  position: markerPosition,
+                  yAnchor: 1.5,
+                  zIndex: 3,
+                });
+
+                overlay.setMap(map);
+
+                // 마커 클릭 시 URL로 이동
                 window.kakao.maps.event.addListener(marker, "click", () => {
                   window.open(url, "_blank");
                 });
 
                 return marker;
               })
-              .filter((marker) => marker !== null); // 빈 값 제거
+              .filter((marker) => marker !== null);
 
             if (markers.length > 0) {
               map.setBounds(bounds);
