@@ -2,16 +2,26 @@ import { useState, useEffect } from 'react';
 import styled, {keyframes} from 'styled-components'
 import YouTube from 'react-youtube';
 import axios from 'axios';
+import {Place} from '../../types/Place';
+
+import ErrorModal from '../../components/modals/ErrorModal';
+import SelectModal from '../../components/modals/SelectModal';
 
 const Home = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [progress, setProgress] = useState<number>(0);
+  const [showErrorModal, setShowErrorModal] = useState<boolean>(true);
+
+  const handleErrorModalClose = (): boolean => {
+    setShowErrorModal(false);
+    return true;
+  };
 
   useEffect(() => {
-    // 컴포넌트가 마운트되면 10초에 걸쳐 0~97%까지 서서히 증가
+    if (!showVideo) return;
     const startTime = Date.now();
-    const duration = 10000;  // 10초
-    const maxProgressBeforeApi = 97;
+    const duration = 12000;  // 10초
+    const maxProgressBeforeApi:number = 97;
 
     let animationFrameId: number | null = null;
 
@@ -36,19 +46,16 @@ const Home = () => {
 
     animationFrameId = requestAnimationFrame(updateProgress);
 
-    // 언마운트 시 animationFrame 해제
     return () => {
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, []);
+  }, [showVideo]);
 
   useEffect(() => {
-    // 컴포넌트 마운트 시(혹은 원하는 시점)에 API 호출
     const fetchData = async () => {
       try {
-        // 예: YouTube URL을 서버에 전송하여 요약된 내용을 받아온다고 가정
         const response = await axios.get('https://example.com/api/summary', {
           params: {
             url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -96,7 +103,7 @@ const Home = () => {
         <StartBtn onClick={() => setShowVideo(true)}>일정 만들기</StartBtn>
       </SearchWrapper>
 
-      <VideoWrapper isHidden={showVideo}>
+      <VideoWrapper isVisible={showVideo}>
         <Header>Link2Trip</Header>
         <YouTube
           videoId={'R4AlFMAgDz0'}
@@ -113,9 +120,24 @@ const Home = () => {
         <CheckMessage>
           장소를 확인중입니다!
           <p>잠시만 기다려주세요</p>
-          <ProgressBar/>
+          <ProgressBar>
+            <div
+              style={{
+                width: `${progress}%`,
+                height: '100%',
+                backgroundColor: '#3071f2',
+                transition: 'width 0.2s ease',
+                borderRadius: '15px',
+                fontSize: '17px',
+                color: 'white'
+              }}
+            >
+              {progress}%
+            </div>
+          </ProgressBar>
         </CheckMessage>
       </VideoWrapper>
+      {showErrorModal && <SelectModal onClose={handleErrorModalClose} />}
     </FieldWrapper>
   )
 };
@@ -229,10 +251,10 @@ const SelectBox = styled.select`
   font-style: normal;
   font-weight: 700;
 
-  &.option{
+  option{
     color: white;
     text-align: center;
-    width: 174px;
+    width: 160px;
     font-family: "Noto Sans";
     font-size: 55px;
     font-style: normal;
@@ -306,8 +328,8 @@ const StartBtn = styled.div`
 
 /*---------------------여기서 부터 로딩--------------------------*/
 
-const VideoWrapper = styled.div<{ isHidden: boolean }>`
-  display: ${({ isHidden }) => ( isHidden ? 'flex' : 'none')};
+const VideoWrapper = styled.div<{ isVisible: boolean }>`
+  display: ${({ isVisible }) => ( isVisible ? 'flex' : 'none')};
   flex-direction: column;
   align-items: center;
 
@@ -317,7 +339,7 @@ const VideoWrapper = styled.div<{ isHidden: boolean }>`
   width: 100vw;
   height: 100vh;
   /* justify-content: center; */
-  animation: ${({ isHidden }) => ( isHidden ? fadeIn : 'none')} 1s forwards;
+  animation: ${({ isVisible }) => ( isVisible ? fadeIn : 'none')} 1s forwards;
 `
 const Header = styled.div`
   width: 100vw;
@@ -360,5 +382,10 @@ const CheckMessage = styled.div`
 `
 
 const ProgressBar = styled.div`
-  width: 500px;
+  width: 587px;
+  height: 27px;
+  
+  border-radius: 15px;
+  border: 2px solid var(--Grays-Gray-4, #D1D1D6);
+  background: var(--semi-white, #F4F4F4);
 `
