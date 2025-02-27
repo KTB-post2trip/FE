@@ -1,9 +1,12 @@
 import styled from "styled-components";
+import MapPlace from "../../components/MapPlace";
+
 
 export default function SelectPlace() {
   return (
     <Main>
       <Title>장소</Title>
+      <MapPlace/>
     </Main>
   );
 }

@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import styled from 'styled-components';
 import axios from 'axios';
 import { usePlaceStore, Place } from '../../store/PlaceStore';
@@ -16,7 +16,7 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
   // };
 
   
-  const { places, removeIds } = usePlaceStore();
+  const { places, removeIds, setPlaces } = usePlaceStore();
   const [excludedIds, setExcludedIds] = useState<number[]>([]);
 
   const handleToggleExclude = (id: number) => {
@@ -26,7 +26,6 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
         : [...prev, id]               // 없으면 추가
     );
   };
-
   //저장하기 event
   const handleSave = async () => {
     try {
@@ -42,12 +41,14 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
       await axios.put('/api/place', { ids: remainingIds });
       console.log('저장 성공');
       console.log(usePlaceStore.getState().places);
+      setPlaces(usePlaceStore.getState().places);
+      console.log(places);
       window.location.href = '/map';
-      onClose();
     } catch (error) {
       console.error(error);
     }
   };
+
 
   return (
     <ModalOverlay>
@@ -64,8 +65,8 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
                 onClick={() => handleToggleExclude(place.id)}
                 style={{
                   opacity: isExcluded ? 0.5 : 1,
-                  borderColor: isExcluded ? 'red' : '#676767',
-                  scale: isExcluded ? 0.93 : 1,
+                  backgroundColor: isExcluded ? '#a1a5ae' : 'white',
+                  scale: isExcluded ? 0.97 : 1,
                 }}
               >
                 <PlaceImage src={place.imageUrl} alt='장소'/>
@@ -102,7 +103,7 @@ const ModalContent = styled.div`
   max-width: 1150px;
   height: 90%;
   max-height: 790px;
-  padding: 20px 30px;
+  /* padding: 20px 30px; */
 
   align-items: center;
   display: flex;
@@ -184,8 +185,8 @@ const PlaceWrapper = styled.div`
   height: 220px;
 
   border-radius: 20px;
-  border: 2px dashed #676767;
-  justify-content: center;
+  border: 3px dashed #676767;
+  /* justify-content: center; */
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -195,6 +196,7 @@ const PlaceWrapper = styled.div`
 
 const PlaceImage = styled.img`
   margin-top: 25px;
+  border-radius: 10px;
   width: 100px;
   height: 100px;
 `
@@ -219,6 +221,11 @@ const Description = styled.div`
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; //2줄까지만만
+  overflow: hidden;
   text-overflow: ellipsis;
 
   margin-top: 6px;
