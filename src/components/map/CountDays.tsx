@@ -27,7 +27,7 @@ export default function CountDays({ onCreate }: CountDaysProps) {
 
     try {
       const response = await axios.get(
-        `http://13.124.106.170:8080/api/recommend/place?sId=${sid}&days=${days}`
+        `/api/recommend/place?sId=${sid}&days=${days}`
       );
 
       const result = response.data;

@@ -4,6 +4,8 @@ import styled from "styled-components";
 import axios from "axios";
 import PlaceList from "./PlaceList";
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
+import { usePlaceStore } from "../../store/PlaceStore";
+import { useRecommendStore } from "../../store/useRecommendStore";
 
 interface Place {
   id: number;
@@ -14,40 +16,49 @@ interface Place {
 }
 
 export default function SelectDays() {
-  const [places, setPlaces] = useState<Place[]>([]);
+  const { sid } = usePlaceStore();
+  const { places, setPlaces, days } = useRecommendStore();
   const [uniqueDays, setUniqueDays] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
     const fetchPlaces = async () => {
+      if (!sid) {
+        console.error("❌ sid 값이 없습니다.");
+        return;
+      }
+
       try {
-        const response = await axios.get("/api/recommend");
-        const transformedData: Place[] = response.data.map((item: any) => ({
-          id: item.place.id,
-          name: item.place.name,
-          description: item.place.description,
-          imageUrl:
-            item.place.imageUrl ||
-            "https://via.placeholder.com/80?text=No+Image",
-          days: item.days,
-        }));
+        const response = await axios.get("/api/recommend/place", {
+          params: { sId: sid, days },
+        });
+
+        const transformedData: Place[] = response.data.recommend_places.map(
+          (item: any) => ({
+            id: item.sort,
+            name: item.place.place_name,
+            description: item.place.description,
+            imageUrl:
+              item.place.imageUrl ||
+              "https://via.placeholder.com/80?text=No+Image",
+            days: item.days,
+          })
+        );
 
         setPlaces(transformedData);
-        setUniqueDays(
-          [...new Set(transformedData.map((place) => place.days))].sort(
-            (a, b) => a - b
-          )
-        );
-        setCurrentPage(
-          transformedData.length > 0 ? transformedData[0].days : 1
-        );
+
+        const extractedDays = [
+          ...new Set(transformedData.map((place) => place.days)),
+        ].sort((a, b) => a - b);
+        setUniqueDays(extractedDays);
+        setCurrentPage(extractedDays.length > 0 ? extractedDays[0] : 1);
       } catch (error) {
-        console.error("API 요청 실패 ❌", error);
+        console.error("❌ API 요청 실패", error);
       }
     };
 
     fetchPlaces();
-  }, []);
+  }, [sid, days, setPlaces]);
 
   const handlePrev = () => {
     const currentIndex = uniqueDays.indexOf(currentPage);

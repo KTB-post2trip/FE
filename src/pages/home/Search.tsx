@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
-import styled, {keyframes} from 'styled-components'
-import YouTube from 'react-youtube';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import styled, { keyframes } from "styled-components";
+import YouTube from "react-youtube";
+import axios from "axios";
 
-import { usePlaceStore, Place } from '../../store/PlaceStore';
+import { usePlaceStore, Place } from "../../store/PlaceStore";
 
-import ErrorModal from '../../components/modals/ErrorModal';
-import SelectModal from '../../components/modals/SelectModal';
+import SelectModal from "../../components/modals/SelectModal";
 
 const Home = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [progress, setProgress] = useState<number>(0);
   const [showErrorModal, setShowErrorModal] = useState<boolean>(false);
-  const [selectedPlace, setSelectedPlace] = useState<string>('서울');
+  const [selectedPlace, setSelectedPlace] = useState<string>("서울");
   const [youtubeUrl, setYoutubeUrl] = useState<string>("");
 
   const { setPlaces, setSid } = usePlaceStore();
@@ -37,8 +36,8 @@ const Home = () => {
   useEffect(() => {
     if (!showVideo) return;
     const startTime = Date.now();
-    const duration = 12000;  // 12초
-    const maxProgressBeforeApi:number = 97;
+    const duration = 12000; // 12초
+    const maxProgressBeforeApi: number = 97;
 
     let animationFrameId: number | null = null;
 
@@ -53,7 +52,7 @@ const Home = () => {
       }
 
       // 기존 progress보다 작게 내려가지 않도록
-      setProgress(prev => Math.max(prev, nextValue));
+      setProgress((prev) => Math.max(prev, nextValue));
 
       // 아직 97% 미만이라면 계속 업데이트
       if (nextValue < maxProgressBeforeApi) {
@@ -70,38 +69,51 @@ const Home = () => {
     };
   }, [showVideo]);
 
-//api 호출
+  //api 호출
   const fetchPlaceData = async (): Promise<void> => {
+    console.log("📍 요청 데이터: ", {
+      url: youtubeUrl,
+      placeName: selectedPlace,
+    });
+
     try {
-      const response = await axios.get<Place[]>('/api/place', {
-        params: {
-          url: youtubeUrl,
-          placeName: selectedPlace,
+      const response = await axios.get<Place[]>(
+        "http://13.124.106.170:8080/api/place",
+        {
+          params: {
+            url: youtubeUrl,
+            placeName: selectedPlace,
+          },
+          timeout: 150000, // 150초 타임아웃 설정
         }
-      });
-
-      setPlaces(response.data);
-      setSid(response.data[0].sid);
-
-      console.log(response.data);
-      console.log(response.data[0].sid);
-
-      // 응답이 성공적으로 도착하면 진행률을 100%로 설정
+      );
+      console.log("✅ API 응답 데이터:", response.data);
+      // API 응답 데이터가 Place[] 타입임을 보장
+      const data = response.data;
+      setPlaces(data);
+      if (data.length > 0) {
+        setSid(data[0].sid);
+        console.log("첫 번째 sid:", data[0].sid);
+      } else {
+        console.warn("API에서 데이터가 반환되지 않았습니다.");
+      }
+      console.log("API 응답 데이터:", data);
+      // 응답이 성공하면 진행률 100%로 설정하고 에러 모달을 표시
       setProgress(100);
       setShowErrorModal(true);
-
-      // 필요하다면 100%가 된 후 잠시 뒤에 페이지 이동
-      // setTimeout(() => { navigate('/next-page'); }, 500);
-
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios 에러:", error.response?.data || error.message);
+      } else {
+        console.error("예상치 못한 에러:", error);
+      }
     }
   };
 
   return (
     <FieldWrapper>
       <LogoWrapper isHidden={showVideo}>
-        <Logo src='L2T_Logo.png' alt='Logo'/>
+        <Logo src="L2T_Logo.png" alt="Logo" />
       </LogoWrapper>
       <SearchWrapper isHidden={showVideo}>
         <BoxWrapper>
@@ -120,22 +132,29 @@ const Home = () => {
           (으)로 떠나볼까요?
         </BoxWrapper>
         <SelectUrl
-          placeholder="ex)https://www.youtube.com/" 
-          value={youtubeUrl} 
-          onChange={(e) => setYoutubeUrl(e.target.value)} 
+          placeholder="ex)https://www.youtube.com/"
+          value={youtubeUrl}
+          onChange={(e) => setYoutubeUrl(e.target.value)}
         />
-        <StartBtn onClick={() => {
-          {
-            if (youtubeUrl.trim() === "") {
-              alert("YouTube URL을 입력하세요.");
-              return;
-            }}
-          setShowVideo(true); fetchPlaceData();}}>일정 만들기</StartBtn>
+        <StartBtn
+          onClick={() => {
+            {
+              if (youtubeUrl.trim() === "") {
+                alert("YouTube URL을 입력하세요.");
+                return;
+              }
+            }
+            setShowVideo(true);
+            fetchPlaceData();
+          }}
+        >
+          일정 만들기
+        </StartBtn>
       </SearchWrapper>
 
       <VideoWrapper Hidden={showVideo}>
         <Header>
-          <img src='Col_Logo.png' alt='Logo'/>
+          <img src="Col_Logo.png" alt="Logo" />
         </Header>
         <YouTube
           videoId={extractVideoId(youtubeUrl)}
@@ -156,12 +175,12 @@ const Home = () => {
             <div
               style={{
                 width: `${progress}%`,
-                height: '100%',
-                backgroundColor: '#3071f2',
-                transition: 'width 0.2s ease',
-                borderRadius: '15px',
-                fontSize: '17px',
-                color: 'white'
+                height: "100%",
+                backgroundColor: "#3071f2",
+                transition: "width 0.2s ease",
+                borderRadius: "15px",
+                fontSize: "17px",
+                color: "white",
               }}
             >
               {progress}%
@@ -171,7 +190,7 @@ const Home = () => {
       </VideoWrapper>
       {showErrorModal && <SelectModal onClose={handleErrorModalClose} />}
     </FieldWrapper>
-  )
+  );
 };
 
 export default Home;
@@ -228,25 +247,25 @@ const FieldWrapper = styled.div`
   flex-direction: row;
   align-items: center;
   position: relative;
-`
+`;
 const LogoWrapper = styled.div<{ isHidden: boolean }>`
   width: 45.83vw;
   height: 100vh;
   flex-shrink: 0;
-  background-color: #3071F2;
+  background-color: #3071f2;
   border-radius: 0 20px 20px 0;
   justify-content: center;
   display: flex;
   align-items: center;
   /* filter: drop-shadow(3px 0px 5px rgba(0, 0, 0, 0.25)); */
-  animation: ${({ isHidden }) => isHidden ? fadeOutLeft : 'none'} 1s forwards;
-`
+  animation: ${({ isHidden }) => (isHidden ? fadeOutLeft : "none")} 1s forwards;
+`;
 
 const Logo = styled.img`
   width: 400px;
   height: 390px;
   /* flex-shrink: 0; */
-`
+`;
 
 const SearchWrapper = styled.div<{ isHidden: boolean }>`
   width: 52.17vw;
@@ -255,24 +274,24 @@ const SearchWrapper = styled.div<{ isHidden: boolean }>`
   flex-direction: column;
   /* justify-content: center; */
   align-items: center;
-  animation: ${({ isHidden }) => isHidden ? fadeOutRight : 'none'} 1s forwards;
-`
+  animation: ${({ isHidden }) => (isHidden ? fadeOutRight : "none")} 1s forwards;
+`;
 
 const BoxWrapper = styled.div`
   width: 755px;
   height: 120px;
-  color: #0D0D0D;
+  color: #0d0d0d;
   font-family: "Noto Sans";
   font-size: 64px;
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-  
+
   margin-top: 275px;
-`
+`;
 
 const SelectBox = styled.select`
-  background-color: #3071F2;
+  background-color: #3071f2;
   color: white;
   border-radius: 10px;
   text-align: center;
@@ -283,7 +302,7 @@ const SelectBox = styled.select`
   font-style: normal;
   font-weight: 700;
 
-  option{
+  option {
     color: white;
     text-align: center;
     width: 80;
@@ -300,14 +319,14 @@ const SelectBox = styled.select`
   &::-webkit-scrollbar-thumb {
     background: white;
   }
-`
+`;
 
 const SelectUrl = styled.input`
   margin-top: 151px;
   width: 700px;
   height: 50px;
   background-color: white;
-  
+
   color: #666;
   font-family: "Noto Sans";
   font-size: 36px;
@@ -327,7 +346,7 @@ const SelectUrl = styled.input`
   &::placeholder {
     color: #999;
   }
-`
+`;
 
 const StartBtn = styled.div`
   display: flex;
@@ -339,7 +358,7 @@ const StartBtn = styled.div`
   border-radius: 20px;
   background: #3e76e5;
 
-  color: #FFF;
+  color: #fff;
   text-align: center;
   font-family: "Pretendard Variable";
   font-size: 21px;
@@ -350,29 +369,29 @@ const StartBtn = styled.div`
   cursor: pointer;
   margin-top: 150px;
 
-  &:active{
+  &:active {
     scale: 0.97;
     background-color: #648fe6;
     transition: cubic-bezier(0.15, 1, 0.5, 1);
     transition-duration: 0.1s;
   }
-`
+`;
 
 /*---------------------여기서 부터 로딩--------------------------*/
 
 const VideoWrapper = styled.div<{ Hidden: boolean }>`
-  display: ${({ Hidden }) => ( Hidden ? 'flex' : 'none')};
+  display: ${({ Hidden }) => (Hidden ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
 
-  position: absolute; 
-  top: 0; 
-  left: 0; 
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   /* justify-content: center; */
-  animation: ${({ Hidden }) => ( Hidden ? fadeIn : 'none')} 1s forwards;
-`
+  animation: ${({ Hidden }) => (Hidden ? fadeIn : "none")} 1s forwards;
+`;
 const Header = styled.div`
   width: 100vw;
   /* height: 50px; */
@@ -384,22 +403,22 @@ const Header = styled.div`
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-  
+
   text-align: left;
 
   margin-bottom: 150px;
 
-  img{
+  img {
     width: 220px;
     height: 47px;
     margin-top: 65px;
     margin-left: 65px;
   }
-`
+`;
 const CheckMessage = styled.div`
   margin-top: 68px;
 
-  color: #3071F2;
+  color: #3071f2;
   text-align: center;
   font-family: "Noto Emoji";
   font-size: 40px;
@@ -407,7 +426,7 @@ const CheckMessage = styled.div`
   font-weight: 700;
   line-height: normal;
 
-  p{
+  p {
     margin-top: 19px;
 
     color: #606060;
@@ -418,13 +437,13 @@ const CheckMessage = styled.div`
     font-weight: 600;
     line-height: normal;
   }
-`
+`;
 
 const ProgressBar = styled.div`
   width: 587px;
   height: 27px;
-  
+
   border-radius: 15px;
-  border: 2px solid var(--Grays-Gray-4, #D1D1D6);
-  background: var(--semi-white, #F4F4F4);
-`
+  border: 2px solid var(--Grays-Gray-4, #d1d1d6);
+  background: var(--semi-white, #f4f4f4);
+`;
