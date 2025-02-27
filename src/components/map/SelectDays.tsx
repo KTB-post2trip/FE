@@ -29,17 +29,29 @@ export default function SelectDays() {
       }
 
       try {
-        const response = await axios.get("/api/recommend/place", {
-          params: { sId: sid, days },
-        });
+        console.log("📡 API 요청 시작:", { sId: sid, days });
+
+        const response = await axios.get(
+          "http://13.124.106.170:8080/api/recommend/place",
+          {
+            params: { sId: sid, days },
+          }
+        );
+
+        console.log("✅ API 응답 데이터:", response.data);
+
+        if (!response.data || !response.data.recommend_places) {
+          console.error("❌ API 응답이 올바르지 않습니다.", response.data);
+          return;
+        }
 
         const transformedData: Place[] = response.data.recommend_places.map(
           (item: any) => ({
             id: item.sort,
-            name: item.place.place_name,
-            description: item.place.description,
+            name: item.place?.place_name || "이름 없음",
+            description: item.place?.description || "설명 없음",
             imageUrl:
-              item.place.imageUrl ||
+              item.place?.imageUrl ||
               "https://via.placeholder.com/80?text=No+Image",
             days: item.days,
           })
