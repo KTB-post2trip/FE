@@ -15,6 +15,7 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
   //   return false;
   // };
 
+
   
   const { places, removeIds, setPlaces } = usePlaceStore();
   const [excludedIds, setExcludedIds] = useState<number[]>([]);
@@ -49,32 +50,62 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
     }
   };
 
+  const getImageUrl = (place: Place): string => {
+    // imageUrl이 없거나 공백이면 기본 이미지 선택
+    if (!place.imageUrl || place.imageUrl.trim() === "") {
+      if (place.category === "카페" || place.category === "디저트") {
+        return "N_cafe.png";
+      } else if (place.category === "음식점") {
+        return "N_food.png";
+      } else if (place.category === "관광지") {
+        return "N_place.png";
+      }
+      return "default.png"; // 기타 기본값(원하는 경우)
+    }
+    return place.imageUrl;
+  };
 
   return (
     <ModalOverlay>
       <ModalContent>
         <Message>제외할 장소를 선택해주세요</Message>
         <PlaceContainer>
-        {places.map((place: Place) => {
-            // excludedIds에 포함되어 있으면 "제외 예정"으로 표시
-            const isExcluded = excludedIds.includes(place.id);
-            
-            return (
-              <PlaceWrapper
-                key={place.id}
-                onClick={() => handleToggleExclude(place.id)}
-                style={{
-                  opacity: isExcluded ? 0.5 : 1,
-                  backgroundColor: isExcluded ? '#a1a5ae' : 'white',
-                  scale: isExcluded ? 0.97 : 1,
-                }}
-              >
-                <PlaceImage src={place.imageUrl} alt='장소'/>
-                <Title>{place.name}</Title>
-                <Description>{place.description}</Description>
-              </PlaceWrapper>
-            );
-          })}
+          {Array.isArray(places) && places.length > 0 ? (
+            places.map((place: Place) => {
+              const isExcluded = excludedIds.includes(place.id);
+              
+              return (
+                <PlaceWrapper
+                  key={place.id}
+                  onClick={() => handleToggleExclude(place.id)}
+                  style={{
+                    opacity: isExcluded ? 0.5 : 1,
+                    backgroundColor: isExcluded ? '#a1a5ae' : 'white',
+                    scale: isExcluded ? 0.97 : 1,
+                  }}
+                >
+                  <PlaceImage 
+                    src={getImageUrl(place)} 
+                    alt='장소'
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (place.category === "카페/디저트") {
+                        target.src = "N_cafe.png";
+                      } else if (place.category === "음식점") {
+                        target.src = "N_food.png";
+                      } else if (place.category === "관광지") {
+                        target.src = "N_place.png";
+                      }
+                    }}
+                  />
+                  <Title>{place.name}</Title>
+                  <Description>{place.description}</Description>
+                </PlaceWrapper>
+              );
+            })
+          ) : (
+            <p>장소 데이터가 없습니다.</p>
+          )}
         </PlaceContainer>
         <SelectButton onClick={handleSave}>저장하기</SelectButton>
       </ModalContent>
