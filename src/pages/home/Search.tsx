@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import styled, {keyframes} from 'styled-components'
 import YouTube from 'react-youtube';
 import axios from 'axios';
-import {Place} from '../../types/Place';
+
 
 import ErrorModal from '../../components/modals/ErrorModal';
 import SelectModal from '../../components/modals/SelectModal';
@@ -11,16 +11,30 @@ const Home = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [progress, setProgress] = useState<number>(0);
   const [showErrorModal, setShowErrorModal] = useState<boolean>(true);
+  const [selectedPlace, setSelectedPlace] = useState<string>('서울');
+  const [youtubeUrl, setYoutubeUrl] = useState<string>("");
 
   const handleErrorModalClose = (): boolean => {
     setShowErrorModal(false);
     return true;
   };
 
+  const extractVideoId = (url: string): string => {
+    const vParamIndex = url.indexOf("v=");
+    if (vParamIndex === -1) return "";
+    let id = url.substring(vParamIndex + 2);
+    const ampIndex = id.indexOf("&");
+    if (ampIndex !== -1) {
+      id = id.substring(0, ampIndex);
+    }
+    // console.log(id);
+    return id;
+  };
+
   useEffect(() => {
     if (!showVideo) return;
     const startTime = Date.now();
-    const duration = 12000;  // 10초
+    const duration = 12000;  // 12초
     const maxProgressBeforeApi:number = 97;
 
     let animationFrameId: number | null = null;
@@ -53,34 +67,32 @@ const Home = () => {
     };
   }, [showVideo]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('https://example.com/api/summary', {
-          params: {
-            url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-          }
-        });
-        console.log(response.data);
 
-        // 응답이 성공적으로 도착하면 진행률을 100%로 설정
-        setProgress(100);
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('/api/place', {
+        params: {
+          url: youtubeUrl,
+          placeName: '서울',
+        }
+      });
+      console.log(response.data);
 
-        // 필요하다면 100%가 된 후 잠시 뒤에 페이지 이동
-        // setTimeout(() => { navigate('/next-page'); }, 500);
+      // 응답이 성공적으로 도착하면 진행률을 100%로 설정
+      setProgress(100);
 
-      } catch (error) {
-        console.error(error);
-      }
-    };
+      // 필요하다면 100%가 된 후 잠시 뒤에 페이지 이동
+      // setTimeout(() => { navigate('/next-page'); }, 500);
 
-    fetchData();
-  }, []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <FieldWrapper>
       <LogoWrapper isHidden={showVideo}>
-        <Logo src='' alt='로고'/>
+        <Logo src='L2T_Logo.png' alt='Logo'/>
       </LogoWrapper>
       <SearchWrapper isHidden={showVideo}>
         <BoxWrapper>
@@ -99,14 +111,20 @@ const Home = () => {
           </SelectBox>
           (으)로 떠나볼까요?
         </BoxWrapper>
-        <SelectUrl/>
-        <StartBtn onClick={() => setShowVideo(true)}>일정 만들기</StartBtn>
+        <SelectUrl
+          placeholder="https://www.youtube.com/watch?v=tPJQtHIRKxo" 
+          value={youtubeUrl} 
+          onChange={(e) => setYoutubeUrl(e.target.value)} 
+        />
+        <StartBtn onClick={() => {setShowVideo(true); fetchData();}}>일정 만들기</StartBtn>
       </SearchWrapper>
 
-      <VideoWrapper isVisible={showVideo}>
-        <Header>Link2Trip</Header>
+      <VideoWrapper Hidden={showVideo}>
+        <Header>
+          <img src='L2T_Logo.png' alt='Logo'/>
+        </Header>
         <YouTube
-          videoId={'R4AlFMAgDz0'}
+          videoId={extractVideoId(youtubeUrl)}
           opts={{
             width: "760px",
             height: "360px",
@@ -211,8 +229,8 @@ const LogoWrapper = styled.div<{ isHidden: boolean }>`
 `
 
 const Logo = styled.img`
-  width: 346px;
-  height: 127px;
+  width: 400px;
+  height: 390px;
   /* flex-shrink: 0; */
 `
 
@@ -328,8 +346,8 @@ const StartBtn = styled.div`
 
 /*---------------------여기서 부터 로딩--------------------------*/
 
-const VideoWrapper = styled.div<{ isVisible: boolean }>`
-  display: ${({ isVisible }) => ( isVisible ? 'flex' : 'none')};
+const VideoWrapper = styled.div<{ Hidden: boolean }>`
+  display: ${({ Hidden }) => ( Hidden ? 'flex' : 'none')};
   flex-direction: column;
   align-items: center;
 
@@ -339,7 +357,7 @@ const VideoWrapper = styled.div<{ isVisible: boolean }>`
   width: 100vw;
   height: 100vh;
   /* justify-content: center; */
-  animation: ${({ isVisible }) => ( isVisible ? fadeIn : 'none')} 1s forwards;
+  animation: ${({ Hidden }) => ( Hidden ? fadeIn : 'none')} 1s forwards;
 `
 const Header = styled.div`
   width: 100vw;
@@ -355,7 +373,14 @@ const Header = styled.div`
   
   text-align: left;
 
-  margin-bottom: 230px;
+  margin-bottom: 40px;
+
+  img{
+    width: 160px;
+    height: 156px;
+    margin-top: 65px;
+    margin-left: 65px;
+  }
 `
 const CheckMessage = styled.div`
   margin-top: 68px;

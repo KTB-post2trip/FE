@@ -230,6 +230,7 @@ const Description = styled.div`
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+  text-overflow: ellipsis;
 
   margin-top: 6px;
   width: 200px;
