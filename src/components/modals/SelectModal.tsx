@@ -59,6 +59,10 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
         return "N_food.png";
       } else if (place.category === "관광지") {
         return "N_place.png";
+      } else if (place.category === "쇼핑"){
+        return "N_shopping.png";
+      } else{
+        return "N_else.png";
       }
       return "default.png"; // 기타 기본값(원하는 경우)
     }
