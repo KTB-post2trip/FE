@@ -36,8 +36,8 @@ const Home = () => {
   useEffect(() => {
     if (!showVideo) return;
     const startTime = Date.now();
-    const duration = 12000; // 12초
-    const maxProgressBeforeApi: number = 97;
+    const duration = 15000;  // 12초
+    const maxProgressBeforeApi:number = 97;
 
     let animationFrameId: number | null = null;
 
@@ -109,6 +109,43 @@ const Home = () => {
       }
     }
   };
+
+//api 호출
+  // const fetchPlaceData = async (): Promise<void> => {
+  //   try {
+  //     const response = await axios.get<Place[]>('http://13.124.106.170:8080/api/place', {
+  //       params: {
+  //         url: youtubeUrl,
+  //         placeName: selectedPlace,
+  //       }
+  //     });
+
+  //     setPlaces(response.data);
+  //     setSid(response.data[0].sid);
+
+
+  //     console.log(response.data);
+  //     console.log(response.data[0].sid);
+
+  //     // 응답이 성공적으로 도착하면 진행률을 100%로 설정
+  //     setProgress(100);
+  //     setShowErrorModal(true);
+
+  //     // 필요하다면 100%가 된 후 잠시 뒤에 페이지 이동
+  //     // setTimeout(() => { navigate('/next-page'); }, 500);
+
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+  //   } catch (error: unknown) {
+  //     if (axios.isAxiosError(error)) {
+  //       console.error("Axios 에러:", error.response?.data || error.message);
+  //     } else {
+  //       console.error("예상치 못한 에러:", error);
+  //     }
+    
+  // };
 
   return (
     <FieldWrapper>

@@ -39,7 +39,7 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
         .map((p) => p.id);
 
       // 실제 API 엔드포인트/형식에 맞게 수정
-      await axios.put('/api/place', { ids: remainingIds });
+      await axios.put('http://13.124.106.170:8080/api/place', { ids: remainingIds }, );
       console.log('저장 성공');
       console.log(usePlaceStore.getState().places);
       setPlaces(usePlaceStore.getState().places);
