@@ -1,33 +1,82 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import styled from 'styled-components';
+import axios from 'axios';
 import { usePlaceStore, Place } from '../../store/PlaceStore';
+
+import ErrorModal from './ErrorModal';
 
 interface SelectModalProps {
   onClose: () => boolean;
 }
 
 const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
-  const handleClose = (): boolean => {
-    onClose();
-    return false;
+  // const handleClose = (): boolean => {
+  //   onClose();
+  //   return false;
+  // };
+
+  
+  const { places, removeIds, setPlaces } = usePlaceStore();
+  const [excludedIds, setExcludedIds] = useState<number[]>([]);
+
+  const handleToggleExclude = (id: number) => {
+    setExcludedIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((x) => x !== id) // 이미 있으면 제거
+        : [...prev, id]               // 없으면 추가
+    );
+  };
+  //저장하기 event
+  const handleSave = async () => {
+    try {
+      //전역 상태에서 제외
+      removeIds(excludedIds);
+
+      //최종적으로 남아 있는 places의 id 목록
+      const remainingIds = places
+        .filter((p) => !excludedIds.includes(p.id))
+        .map((p) => p.id);
+
+      // 실제 API 엔드포인트/형식에 맞게 수정
+      await axios.put('/api/place', { ids: remainingIds });
+      console.log('저장 성공');
+      console.log(usePlaceStore.getState().places);
+      setPlaces(usePlaceStore.getState().places);
+      console.log(places);
+      window.location.href = '/map';
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const { places } = usePlaceStore();
 
   return (
     <ModalOverlay>
       <ModalContent>
         <Message>제외할 장소를 선택해주세요</Message>
         <PlaceContainer>
-          {places.map((place: Place)=>(
-            <PlaceWrapper key={place.id}>
-              <PlaceImage src={place.imageUrl} alt='장소'/>
-              <Title>{place.name}</Title>
-              <Description>{place.description}</Description>
-            </PlaceWrapper>
-          ))}
+        {places.map((place: Place) => {
+            // excludedIds에 포함되어 있으면 "제외 예정"으로 표시
+            const isExcluded = excludedIds.includes(place.id);
+            
+            return (
+              <PlaceWrapper
+                key={place.id}
+                onClick={() => handleToggleExclude(place.id)}
+                style={{
+                  opacity: isExcluded ? 0.5 : 1,
+                  backgroundColor: isExcluded ? '#a1a5ae' : 'white',
+                  scale: isExcluded ? 0.97 : 1,
+                }}
+              >
+                <PlaceImage src={place.imageUrl} alt='장소'/>
+                <Title>{place.name}</Title>
+                <Description>{place.description}</Description>
+              </PlaceWrapper>
+            );
+          })}
         </PlaceContainer>
-        <SelectButton onClick={handleClose}>저장하기</SelectButton>
+        <SelectButton onClick={handleSave}>저장하기</SelectButton>
       </ModalContent>
     </ModalOverlay>
   );
@@ -54,7 +103,7 @@ const ModalContent = styled.div`
   max-width: 1150px;
   height: 90%;
   max-height: 790px;
-  padding: 20px 30px;
+  /* padding: 20px 30px; */
 
   align-items: center;
   display: flex;
@@ -136,8 +185,8 @@ const PlaceWrapper = styled.div`
   height: 220px;
 
   border-radius: 20px;
-  border: 2px dashed #676767;
-  justify-content: center;
+  border: 3px dashed #676767;
+  /* justify-content: center; */
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -147,6 +196,7 @@ const PlaceWrapper = styled.div`
 
 const PlaceImage = styled.img`
   margin-top: 25px;
+  border-radius: 10px;
   width: 100px;
   height: 100px;
 `
@@ -171,6 +221,11 @@ const Description = styled.div`
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; //2줄까지만만
+  overflow: hidden;
   text-overflow: ellipsis;
 
   margin-top: 6px;
