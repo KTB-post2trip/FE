@@ -5,7 +5,7 @@ interface Place {
   name: string;
   description: string;
   imageUrl: string | null;
-  page: number;
+  days: number;
 }
 
 interface PlaceListProps {
@@ -14,7 +14,7 @@ interface PlaceListProps {
 }
 
 export default function PlaceList({ data, currentPage }: PlaceListProps) {
-  const filteredPlaces = data.filter((place) => place.page === currentPage);
+  const filteredPlaces = data.filter((place) => place.days === currentPage);
 
   return (
     <ListContainer>

@@ -51,23 +51,24 @@ function KakaoMap() {
 
             const bounds = new window.kakao.maps.LatLngBounds();
 
-            places.forEach((item) => {
-              const { latitude, longitude, sid } = item.place;
-              const { days } = item;
+            const markers = places
+              .map((item) => {
+                const { latitude, longitude, url } = item.place; // url 사용
+                const { days } = item;
 
-              if (latitude && longitude) {
-                // days 값에 따라 마커 이미지 동적 설정
-                const markerImageSrc = `/public/day${days}-pin.svg`;
-
-                const markerImage = new window.kakao.maps.MarkerImage(
-                  markerImageSrc,
-                  new window.kakao.maps.Size(40, 40),
-                  { offset: new window.kakao.maps.Point(20, 40) }
-                );
+                if (!latitude || !longitude || !url) return null; // url이 없는 경우 제외
 
                 const markerPosition = new window.kakao.maps.LatLng(
                   parseFloat(latitude),
                   parseFloat(longitude)
+                );
+
+                bounds.extend(markerPosition);
+
+                const markerImage = new window.kakao.maps.MarkerImage(
+                  `/public/day${days}-pin.svg`,
+                  new window.kakao.maps.Size(40, 40),
+                  { offset: new window.kakao.maps.Point(20, 40) }
                 );
 
                 const marker = new window.kakao.maps.Marker({
@@ -76,18 +77,16 @@ function KakaoMap() {
                   map,
                 });
 
+                // 클릭 시 받아온 URL로 이동
                 window.kakao.maps.event.addListener(marker, "click", () => {
-                  window.open(
-                    `https://map.kakao.com/link/map/${sid}`,
-                    "_blank"
-                  );
+                  window.open(url, "_blank");
                 });
 
-                bounds.extend(markerPosition);
-              }
-            });
+                return marker;
+              })
+              .filter((marker) => marker !== null); // 빈 값 제거
 
-            if (places.length > 0) {
+            if (markers.length > 0) {
               map.setBounds(bounds);
             }
           }
