@@ -19,6 +19,7 @@ export interface Place {
     sid: string;
     setPlaces: (places: Place[]) => void;
     setSid: (sid: string) => void;
+    removeIds: (ids:number[]) => void;
   }
   
   export const usePlaceStore = create<PlaceStoreState>((set) => ({
@@ -26,4 +27,8 @@ export interface Place {
     sid: '',
     setPlaces: (places) => set({ places }),
     setSid: (sid: string) => set({sid}),
+    removeIds: (ids: number[]) =>
+        set((state) => ({
+            places: state.places.filter((p)=> !ids.includes(p.id))
+        }))
   }));
