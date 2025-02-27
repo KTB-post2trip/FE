@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components';
+import { usePlaceStore, Place } from '../../store/PlaceStore';
 
 interface SelectModalProps {
   onClose: () => boolean;
@@ -11,80 +12,20 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
     return false;
   };
 
-  // 문자열이 maxLength를 초과하면 잘라서 "..." 추가하는 함수
-  const truncateText = (text: string, maxLength: number): string => {
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
-  };
+  const { places } = usePlaceStore();
+
   return (
     <ModalOverlay>
       <ModalContent>
         <Message>제외할 장소를 선택해주세요</Message>
         <PlaceContainer>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
-          <PlaceWrapper>
-            <PlaceImage src='vite.svg'/>
-            <Title>한라산</Title>
-            <Description>{truncateText("으ㅜ아아아아아ㅏ아아", 24)}</Description>
-          </PlaceWrapper>
+          {places.map((place: Place)=>(
+            <PlaceWrapper key={place.id}>
+              <PlaceImage src={place.imageUrl} alt='장소'/>
+              <Title>{place.name}</Title>
+              <Description>{place.description}</Description>
+            </PlaceWrapper>
+          ))}
         </PlaceContainer>
         <SelectButton onClick={handleClose}>저장하기</SelectButton>
       </ModalContent>
@@ -230,6 +171,7 @@ const Description = styled.div`
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+  text-overflow: ellipsis;
 
   margin-top: 6px;
   width: 200px;
