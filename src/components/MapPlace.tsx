@@ -122,7 +122,7 @@ const ContentWrapper = styled.div<ContentWrapperProps>`
 `;
 
 const PlaceWrapper = styled.div`
-  height: 130px;
+  height: 150px;
   border-radius: 20px;
   border: 2px dashed #676767;
   /* justify-content: center; */
@@ -133,6 +133,7 @@ const PlaceWrapper = styled.div`
 `;
 
 const PlaceImage = styled.img`
+margin-top: 5px;
   border-radius: 20px;
   width: 80px;
   height: 80px;

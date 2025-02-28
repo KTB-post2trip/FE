@@ -9,10 +9,11 @@ import { useRecommendStore } from "../../store/useRecommendStore";
 
 interface Place {
   id: number;
+  sid: number;
   name: string;
   description: string;
   imageUrl: string | null;
-  days: number;
+  days: number
 }
 
 export default function SelectDays() {
@@ -29,18 +30,20 @@ export default function SelectDays() {
       }
 
       try {
-        const response = await axios.get("/api/recommend/place", {
-          params: { sId: sid, days },
+        const response = await axios.get("http://13.124.106.170:8080/api/recommend", {
+          params: { sId: sid, days: days },
         });
 
+        // const recommendPlaces= response.data.recommend;
+        // console.log(recommendPlaces);
         const transformedData: Place[] = response.data.recommend_places.map(
           (item: any) => ({
             id: item.sort,
-            name: item.place.place_name,
+            name: item.place.name,
             description: item.place.description,
             imageUrl:
               item.place.imageUrl ||
-              "https://via.placeholder.com/80?text=No+Image",
+              'N_else.png',
             days: item.days,
           })
         );

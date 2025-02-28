@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, createGlobalStyle } from "styled-components";
 import YouTube from "react-youtube";
 import axios from "axios";
 
 import { usePlaceStore, Place } from "../../store/PlaceStore";
 
 import SelectModal from "../../components/modals/SelectModal";
+
+const GlobalStyle = createGlobalStyle`
+  :root {
+    --drop-height: -30px;
+  }
+`;
 
 const Home = () => {
   const [showVideo, setShowVideo] = useState(false);
@@ -36,7 +42,7 @@ const Home = () => {
   useEffect(() => {
     if (!showVideo) return;
     const startTime = Date.now();
-    const duration = 15000;  // 12초
+    const duration = 20000;  // 20초
     const maxProgressBeforeApi:number = 97;
 
     let animationFrameId: number | null = null;
@@ -75,39 +81,71 @@ const Home = () => {
       url: youtubeUrl,
       placeName: selectedPlace,
     });
-
-    try {
-      const response = await axios.get<Place[]>(
-        "http://13.124.106.170:8080/api/place",
-        {
-          params: {
-            url: youtubeUrl,
-            placeName: selectedPlace,
-          },
-          timeout: 150000, // 150초 타임아웃 설정
+    setTimeout(async () => {
+      try {
+        const response = await axios.get<Place[]>(
+          "http://13.124.106.170:8080/api/place",
+          {
+            params: {
+              url: youtubeUrl,
+              placeName: selectedPlace,
+            },
+            timeout: 14000, // 100초 타임아웃 설정
+          }
+        );
+        console.log("✅ API 응답 데이터:", response.data);
+        const data = response.data;
+        setPlaces(data);
+        if (data.length > 0) {
+          setSid(data[0].sid);
+          console.log("첫 번째 sid:", data[0].sid);
+        } else {
+          console.warn("API에서 데이터가 반환되지 않았습니다.");
         }
-      );
-      console.log("✅ API 응답 데이터:", response.data);
-      // API 응답 데이터가 Place[] 타입임을 보장
-      const data = response.data;
-      setPlaces(data);
-      if (data.length > 0) {
-        setSid(data[0].sid);
-        console.log("첫 번째 sid:", data[0].sid);
-      } else {
-        console.warn("API에서 데이터가 반환되지 않았습니다.");
+        console.log("API 응답 데이터:", data);
+        setProgress(100);
+        setShowErrorModal(true);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          console.error("Axios 에러:", error.response?.data || error.message);
+        } else {
+          console.error("예상치 못한 에러:", error);
+        }
       }
-      console.log("API 응답 데이터:", data);
-      // 응답이 성공하면 진행률 100%로 설정하고 에러 모달을 표시
-      setProgress(100);
-      setShowErrorModal(true);
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        console.error("Axios 에러:", error.response?.data || error.message);
-      } else {
-        console.error("예상치 못한 에러:", error);
-      }
-    }
+    }, 15000); // 15000ms = 15초 지연
+
+    // try {
+    //   const response = await axios.get<Place[]>(
+    //     "http://13.124.106.170:8080/api/place",
+    //     {
+    //       params: {
+    //         url: youtubeUrl,
+    //         placeName: selectedPlace,
+    //       },
+    //       timeout: 100000, // 150초 타임아웃 설정
+    //     }
+    //   );
+    //   console.log("✅ API 응답 데이터:", response.data);
+    //   // API 응답 데이터가 Place[] 타입임을 보장
+    //   const data = response.data;
+    //   setPlaces(data);
+    //   if (data.length > 0) {
+    //     setSid(data[0].sid);
+    //     console.log("첫 번째 sid:", data[0].sid);
+    //   } else {
+    //     console.warn("API에서 데이터가 반환되지 않았습니다.");
+    //   }
+    //   console.log("API 응답 데이터:", data);
+    //   // 응답이 성공하면 진행률 100%로 설정하고 에러 모달을 표시
+    //   setProgress(100);
+    //   setShowErrorModal(true);
+    // } catch (error: unknown) {
+    //   if (axios.isAxiosError(error)) {
+    //     console.error("Axios 에러:", error.response?.data || error.message);
+    //   } else {
+    //     console.error("예상치 못한 에러:", error);
+    //   }
+    // }
   };
 
 //api 호출
@@ -180,6 +218,10 @@ const Home = () => {
                 alert("YouTube URL을 입력하세요.");
                 return;
               }
+              if (!youtubeUrl.startsWith("https://www.youtube.com/watch?v=")) {
+                alert("유효한 YouTube URL을 입력하세요. (https://www.youtube.com/watch?v=로 시작해야 합니다.)");
+                return;
+              }
             }
             setShowVideo(true);
             fetchPlaceData();
@@ -190,9 +232,12 @@ const Home = () => {
       </SearchWrapper>
 
       <VideoWrapper Hidden={showVideo}>
+        <>
+        <GlobalStyle/>
         <Header>
-          <img src="Col_Logo.png" alt="Logo" />
+          <LogoImg src="Col_Logo.png" alt="Logo" />
         </Header>
+        </>
         <YouTube
           videoId={extractVideoId(youtubeUrl)}
           opts={{
@@ -217,6 +262,9 @@ const Home = () => {
                 transition: "width 0.2s ease",
                 borderRadius: "15px",
                 fontSize: "17px",
+                textAlign: "center",
+                justifyContent: "center",
+                alignItems: "center",
                 color: "white",
               }}
             >
@@ -429,6 +477,19 @@ const VideoWrapper = styled.div<{ Hidden: boolean }>`
   /* justify-content: center; */
   animation: ${({ Hidden }) => (Hidden ? fadeIn : "none")} 1s forwards;
 `;
+
+const bounce = keyframes`
+  0% { 
+    transform: translateY(0) scale(1);
+  }
+  70% { 
+    transform: translateY(var(--drop-height));
+  }
+  100%{
+    transform: translateY(0) scale(1, 0.93);
+  }
+`;
+
 const Header = styled.div`
   width: 100vw;
   /* height: 50px; */
@@ -445,13 +506,15 @@ const Header = styled.div`
 
   margin-bottom: 150px;
 
-  img {
-    width: 220px;
-    height: 47px;
-    margin-top: 65px;
-    margin-left: 65px;
-  }
 `;
+const LogoImg = styled.img`
+  width: 220px;
+  height: 47px;
+  margin-top: 65px;
+  margin-left: 65px;
+  animation: ${bounce} 1.3s ease infinite;
+`
+
 const CheckMessage = styled.div`
   margin-top: 68px;
 

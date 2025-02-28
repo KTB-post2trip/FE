@@ -16,16 +16,25 @@ interface PlaceListProps {
 export default function PlaceList({ data, currentPage }: PlaceListProps) {
   const filteredPlaces = data.filter((place) => place.days === currentPage);
 
+  const getImageUrl = (place: Place): string =>
+    place.imageUrl && place.imageUrl.trim() !== ""
+      ? place.imageUrl
+      : "https://via.placeholder.com/80?text=No+Image";
+
   return (
     <ListContainer>
       {filteredPlaces.map((place, index) => (
         <PlaceCard key={place.id}>
           <NumberBadge>{index + 1}</NumberBadge>
           <Image
-            src={
-              place.imageUrl || "https://via.placeholder.com/80?text=No+Image"
-            }
+            src={getImageUrl(place)}
             alt={place.name}
+            onError={(e) => {
+              const target = e.currentTarget as HTMLImageElement;
+              
+                target.src = "N_else.png";
+              
+            }}
           />
           <TextContainer>
             <Title>{place.name}</Title>
