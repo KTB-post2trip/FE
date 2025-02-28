@@ -42,8 +42,8 @@ const Home = () => {
   useEffect(() => {
     if (!showVideo) return;
     const startTime = Date.now();
-    const duration = 20000;  // 20초
-    const maxProgressBeforeApi:number = 97;
+    const duration = 18000;  // 20초
+    const maxProgressBeforeApi:number = 98;
 
     let animationFrameId: number | null = null;
 
@@ -81,7 +81,7 @@ const Home = () => {
       url: youtubeUrl,
       placeName: selectedPlace,
     });
-    setTimeout(async () => {
+    
       try {
         const response = await axios.get<Place[]>(
           "http://13.124.106.170:8080/api/place",
@@ -90,7 +90,7 @@ const Home = () => {
               url: youtubeUrl,
               placeName: selectedPlace,
             },
-            timeout: 14000, // 100초 타임아웃 설정
+            // timeout: 20000, // 100초 타임아웃 설정
           }
         );
         console.log("✅ API 응답 데이터:", response.data);
@@ -112,7 +112,6 @@ const Home = () => {
           console.error("예상치 못한 에러:", error);
         }
       }
-    }, 15000); // 15000ms = 15초 지연
 
     // try {
     //   const response = await axios.get<Place[]>(

@@ -24,35 +24,33 @@ export default function CountDays({ onCreate }: CountDaysProps) {
     }
 
     setIsLoading(true);
+    setTimeout(async () => {
+      try {
+        const response = await axios.get("http://13.124.106.170:8080/api/recommend/place", {
+          params: { sId: sid, days: days },
+          // timeout: 15000, // 예시: 15초 타임아웃
+        });
+        const result = response.data;
+        console.log("✅ API 응답:", result);
 
-    try {
-      const response = await axios.get(
-        `/api/recommend/place?sId=${sid}&days=${days}`
-      );
+        if (result.recommend_places) {
+          const formattedPlaces = result.recommend_places.map((item: any) => ({
+            id: item.sort,
+            name: item.place.place_name,
+            description: item.place.description,
+            imageUrl: item.place.imageUrl || "/public/default-image.png",
+            days: item.days,
+          }));
+          setPlaces(formattedPlaces);
+        }
 
-      const result = response.data;
-      console.log("✅ API 응답:", result);
-
-      if (result.recommend_places) {
-        const formattedPlaces = result.recommend_places.map((item: any) => ({
-          id: item.sort,
-          name: item.place.place_name,
-          description: item.place.description,
-          imageUrl: item.place.imageUrl || "/public/default-image.png",
-          days: item.days,
-        }));
-
-        setPlaces(formattedPlaces);
-      }
-
-      setTimeout(() => {
         setIsLoading(false);
         onCreate();
-      }, 500);
-    } catch (error) {
-      console.error("❌ API 요청 실패", error);
-      setIsLoading(false);
-    }
+      } catch (error: any) {
+        console.error("❌ API 요청 실패", error.response?.data || error.message);
+        setIsLoading(false);
+      }
+    }, 7000);
   };
 
   return (

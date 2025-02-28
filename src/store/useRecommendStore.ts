@@ -18,6 +18,6 @@ interface RecommendStoreState {
 export const useRecommendStore = create<RecommendStoreState>((set) => ({
   places: [],
   setPlaces: (places) => set({ places }),
-  days: 1,
+  days: 3,
   setDays: (days) => set({ days }),
 }));
