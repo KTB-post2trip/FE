@@ -1,9 +1,7 @@
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 import styled from 'styled-components';
 import axios from 'axios';
 import { usePlaceStore, Place } from '../../store/PlaceStore';
-
-import ErrorModal from './ErrorModal';
 
 interface SelectModalProps {
   onClose: () => boolean;
@@ -99,7 +97,9 @@ const SelectModal: React.FC<SelectModalProps> = ({ onClose }) => {
                         target.src = "N_food.png";
                       } else if (place.category === "관광지") {
                         target.src = "N_place.png";
-                      }
+                      } else if (place.category === "쇼핑"){
+                        target.src = "N_shopping.png";
+                      }else{target.src = "N_else.png";}
                     }}
                   />
                   <Title>{place.name}</Title>
